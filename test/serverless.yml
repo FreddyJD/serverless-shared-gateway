@@ -1,0 +1,14 @@
+service: therigy-test
+
+
+plugins:
+  - sls-shared-gateway
+  
+custom: 
+  sharedGateway: 
+    gatewayName: therigy-test
+    outputResources: true
+
+provider:
+  name: aws
+  runtime: nodejs8.10
