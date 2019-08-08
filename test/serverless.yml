@@ -2,12 +2,14 @@ service: therigy-test
 
 
 plugins:
-  - sls-shared-gateway
+  - serverless-shared-gateway
   
 custom: 
   sharedGateway: 
     gatewayName: therigy-test
     outputResources: true
+    outputFilename: '.apigateway.env'
+    domainManagerCompatible: true
 
 provider:
   name: aws
