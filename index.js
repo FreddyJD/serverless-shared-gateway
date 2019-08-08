@@ -226,7 +226,11 @@ class sls_shared_api_gateway {
     this.initialSetup()
     const { items } = await this.apiGateway.getRestApis({}).promise(); 
     let gatewayIds = items.filter(gateway => this._findMatchingRestApi(gateway))
-    this.restApiId = gatewayIds[0].id
+    if(gatewayIds[0] === undefined){ 
+      this.restApiId = undefined; 
+    } else { 
+      this.restApiId = gatewayIds[0].id
+    }
   }
   
   findExistingResources() {
