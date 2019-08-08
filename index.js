@@ -135,14 +135,6 @@ class sls_shared_api_gateway {
     }
   }
 
-  async writeAndRead(restId, resourceId, outputFilename) {
-    if (outputFilename === null) {
-      outputFilename = '.output'
-    }
-    return await writeFile(`./${outputFilename}`, `restId=${restId}\nresourceId=${resourceId} `)
-  }
-
-
   async compileEvents() {
     this.restApiId = this.serverless.service.provider.apiGatewayRestApiId
     this.restApiResourceId = this.serverless.service.provider.apiGatewayRestApiResourceId
@@ -154,7 +146,8 @@ class sls_shared_api_gateway {
     if (!this.restApiId && !this.restApiName) throw new Error(`Unable to continue please provide an apiId or apiName`);
 
     if (this.domainManagerCompatible === true) {
-      this.serverless.cli.consoleLog('Serverless Shared Gateway - Domain Manager Driver is enabled')
+      this.serverless.cli.consoleLog('Serverless: Shared Gateway - Domain Manager hook is enabled')
+      await this.grabRestID()
     } else {
       await this.findRestApi()
       await this.loadResourcesForApi()
@@ -164,7 +157,12 @@ class sls_shared_api_gateway {
     }
 
     if (this.outputResources === true) {
-      await this.writeAndRead(this.restApiId, this.restApiResourceId, this.outputFilename)
+      
+      if (this.outputFilename === undefined) {
+        this.outputFilename = '.output'
+      } 
+  
+      return await writeFile(`./${this.outputFilename}`, `restId=${this.restApiId}\nresourceId=${this.restApiResourceId} `)
     }
 
   }
@@ -223,6 +221,14 @@ class sls_shared_api_gateway {
     }
   }
 
+
+  async grabRestID() {
+    this.initialSetup()
+    const { items } = await this.apiGateway.getRestApis({}).promise(); 
+    let gatewayIds = items.filter(gateway => this._findMatchingRestApi(gateway))
+    this.restApiId = gatewayIds[0].id
+  }
+  
   findExistingResources() {
     if (!this.resources) throw new Error(`You must have a list of the current resources. Did you forget to run loadResourcesForApi?`)
 
